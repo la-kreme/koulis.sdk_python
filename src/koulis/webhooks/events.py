@@ -7,7 +7,7 @@ with match/case in receivers.
 
 import json
 from datetime import datetime
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Union, Any
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
@@ -109,7 +109,7 @@ WebhookEvent = Annotated[
 _event_adapter: TypeAdapter[WebhookEvent] = TypeAdapter(WebhookEvent)
 
 
-def parse_event(payload: bytes | str | dict) -> WebhookEvent:
+def parse_event(payload: bytes | str | dict[str, Any]) -> WebhookEvent:
     """
     Parse a webhook payload into a typed event.
 

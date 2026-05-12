@@ -41,7 +41,9 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+extend-exclude = ["examples"]
 
 [tool.mypy]
 strict = true
 python_version = "3.11"
+exclude = ["examples/"]

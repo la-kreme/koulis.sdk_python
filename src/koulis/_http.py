@@ -86,11 +86,18 @@ def parse_json(response: httpx.Response) -> dict[str, Any]:
     """
     Parse a successful response body as JSON.
 
-    Raises KoulisNetworkError if the body is malformed (this is rare
-    in practice — successful responses are always valid JSON from the
-    Koulis API — but we defend against transport-level corruption).
+    Raises KoulisNetworkError if the body is malformed or is not a
+    JSON object (the Koulis API always returns objects at the top
+    level — anything else indicates transport-level corruption).
     """
     try:
-        return response.json()
+        data = response.json()
     except Exception as exc:
         raise KoulisNetworkError(f"Failed to parse JSON response: {exc}") from exc
+
+    if not isinstance(data, dict):
+        raise KoulisNetworkError(
+            f"Expected JSON object response, got {type(data).__name__}"
+        )
+
+    return data
