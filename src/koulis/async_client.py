@@ -168,7 +168,7 @@ class AsyncKoulisClient:
         self,
         *,
         restaurant_id: UUID | str,
-        date: date,
+        day: date,
         slots: list[dict[str, Any]],
     ) -> UpsertAvailabilitiesResponse:
         """Replace all availabilities for a restaurant on a given date."""
@@ -187,7 +187,7 @@ class AsyncKoulisClient:
             )
 
         payload = {
-            "date": date.isoformat(),
+            "day": day.isoformat(),
             "slots": normalized_slots,
         }
         response = await self._put(
