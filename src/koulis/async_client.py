@@ -341,7 +341,7 @@ class AsyncKoulisClient:
         """List all registered webhook endpoints."""
         response = await self._get("/v1/webhooks", params={})
         data = parse_json(response)
-        return [WebhookEndpoint.model_validate(w) for w in data["webhooks"]]
+        return [WebhookEndpoint.model_validate(w) for w in data["results"]]
 
     async def delete_webhook(self, webhook_id: UUID | str) -> None:
         """Soft-delete a webhook endpoint."""

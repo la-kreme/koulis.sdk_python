@@ -408,7 +408,7 @@ class KoulisClient:
         """List all registered webhook endpoints. Secrets are not exposed."""
         response = self._get("/v1/webhooks", params={})
         data = parse_json(response)
-        return [WebhookEndpoint.model_validate(w) for w in data["webhooks"]]
+        return [WebhookEndpoint.model_validate(w) for w in data["results"]]
 
     def delete_webhook(self, webhook_id: UUID | str) -> None:
         """Soft-delete a webhook endpoint (sets is_active=false)."""
