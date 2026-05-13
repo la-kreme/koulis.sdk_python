@@ -137,7 +137,7 @@ class HoldResponse(BaseModel):
         UUID, Field(examples=["b47d4e2a-1c3f-4a7e-9b2d-5f6a8c3e1d0b"])
     ]
     restaurant_name: Annotated[str, Field(examples=["Le Bouillon Chartier"])]
-    slot: LocalizedDateTime
+    slot_at: Annotated[AwareDatetime, Field(examples=["2026-05-12T20:00:00.000Z"])]
     party_size: Annotated[int, Field(examples=[2])]
     expires_at: Annotated[AwareDatetime, Field(examples=["2026-05-12T20:05:00.000Z"])]
     expires_in_seconds: Annotated[int, Field(examples=[300])]
@@ -168,7 +168,7 @@ class ReservationResponse(BaseModel):
         UUID, Field(examples=["b47d4e2a-1c3f-4a7e-9b2d-5f6a8c3e1d0b"])
     ]
     restaurant_name: Annotated[str, Field(examples=["Le Bouillon Chartier"])]
-    slot: LocalizedDateTime
+    slot_at: Annotated[AwareDatetime, Field(examples=["2026-05-12T20:00:00.000Z"])]
     party_size: Annotated[int, Field(examples=[2])]
     customer_name: Annotated[str, Field(examples=["Marie Dupont"])]
     customer_phone: Annotated[str, Field(examples=["+33600000000"])]
