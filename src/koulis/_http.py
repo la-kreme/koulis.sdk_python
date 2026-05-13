@@ -27,7 +27,7 @@ from koulis.exceptions import (
 
 DEFAULT_BASE_URL = "https://api.koulis.ai"
 DEFAULT_TIMEOUT = 30.0
-USER_AGENT = "koulis-python/0.1.0"
+USER_AGENT = "koulis-python/0.4.0"
 
 
 def build_headers(api_token: str) -> dict[str, str]:

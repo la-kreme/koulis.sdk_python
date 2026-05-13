@@ -1,6 +1,6 @@
 [project]
 name = "koulis"
-version = "0.2.0"
+version = "0.4.0"
 description = "Python SDK for the Koulis restaurant reservation infrastructure"
 readme = "README.md"
 requires-python = ">=3.11"

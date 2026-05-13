@@ -97,12 +97,14 @@ class KoulisClient:
         actor_type: str | None = None,
         price_range: int | None = None,
         excerpt: str | None = None,
+        rating: float | None = None,
         cuisines: list[str] | None = None,
         formats: list[str] | None = None,
         dietary: list[str] | None = None,
         atmosphere: list[str] | None = None,
         services: list[str] | None = None,
         is_published: bool = True,
+        timezone: str | None = None,
         source: str = "sdk",
     ) -> Restaurant:
         """
@@ -130,17 +132,48 @@ class KoulisClient:
             "actor_type": actor_type,
             "price_range": price_range,
             "excerpt": excerpt,
+            "rating": rating,
             "cuisines": cuisines,
             "formats": formats,
             "dietary": dietary,
             "atmosphere": atmosphere,
             "services": services,
+            "timezone": timezone,
         }
         for key, value in optional.items():
             if value is not None:
                 payload[key] = value
 
         response = self._post("/v1/restaurants", json_body=payload)
+        return Restaurant.model_validate(parse_json(response))
+
+    def update_restaurant(
+        self,
+        restaurant_id: UUID | str,
+        *,
+        timezone: str | None = None,
+        name: str | None = None,
+        address: str | None = None,
+        phone: str | None = None,
+        rating: float | None = None,
+    ) -> Restaurant:
+        """Update an existing restaurant's mutable fields."""
+        payload: dict[str, Any] = {}
+        optional = {
+            "timezone": timezone,
+            "name": name,
+            "address": address,
+            "phone": phone,
+            "rating": rating,
+        }
+        for key, value in optional.items():
+            if value is not None:
+                payload[key] = value
+        if not payload:
+            raise ValueError("At least one field must be provided for update")
+        response = self._patch(
+            f"/v1/restaurants/{restaurant_id}", json_body=payload
+        )
         return Restaurant.model_validate(parse_json(response))
 
     def search(
@@ -461,6 +494,14 @@ class KoulisClient:
     def _put(self, path: str, *, json_body: dict[str, Any]) -> httpx.Response:
         try:
             response = self._client.put(path, json=json_body)
+        except httpx.HTTPError as exc:
+            raise KoulisNetworkError(f"Network error: {exc}") from exc
+        raise_for_status(response)
+        return response
+
+    def _patch(self, path: str, *, json_body: dict[str, Any]) -> httpx.Response:
+        try:
+            response = self._client.patch(path, json=json_body)
         except httpx.HTTPError as exc:
             raise KoulisNetworkError(f"Network error: {exc}") from exc
         raise_for_status(response)
