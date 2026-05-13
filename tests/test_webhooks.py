@@ -60,6 +60,24 @@ def test_empty_payload():
 
 # ─── event parsing ───────────────────────────────────────────────────
 
+def _make_localized_slot(iso_utc: str = "2026-05-12T20:00:00.000Z") -> dict:
+    """Helper to build a valid LocalizedDateTime dict for fixtures.
+
+    The Koulis API enriches every slot with a timezone-aware
+    representation so that consumers don't have to do conversions.
+    All four webhook events now include this field as `slot_localized`.
+    """
+    return {
+        "iso_utc": iso_utc,
+        "local_date": "2026-05-12",
+        "local_time": "22:00",
+        "local_datetime": "2026-05-12T22:00:00+02:00",
+        "timezone": "Europe/Paris",
+        "human_readable_fr": "mardi 12 mai à 22h00",
+        "human_readable_en": "Tuesday, May 12 at 10:00 PM",
+    }
+
+
 def _reservation_payload():
     return {
         "id": "evt_r1",
@@ -70,6 +88,7 @@ def _reservation_payload():
             "restaurant_id": "22222222-2222-2222-2222-222222222222",
             "restaurant_name": "Sanukiya",
             "slot_at": "2026-05-12T20:00:00Z",
+            "slot_localized": _make_localized_slot(),
             "party_size": 2,
             "customer_name": "Test",
             "customer_phone": "+33600000000",
@@ -91,6 +110,7 @@ def _hold_created_payload():
             "restaurant_id": "22222222-2222-2222-2222-222222222222",
             "restaurant_name": "Sanukiya",
             "slot_at": "2026-05-12T20:00:00Z",
+            "slot_localized": _make_localized_slot(),
             "party_size": 2,
             "expires_at": "2026-05-12T14:05:00Z",
             "source": "mcp",
@@ -102,11 +122,16 @@ def test_parse_reservation_created():
     event = parse_event(_reservation_payload())
     assert isinstance(event, ReservationCreatedEvent)
     assert event.data.party_size == 2
+    # Consumers should prefer slot_localized for display purposes.
+    # slot_at is kept only for backward-compat with SDK v0.1.x.
+    assert event.data.slot_localized.timezone == "Europe/Paris"
+    assert event.data.slot_localized.human_readable_fr == "mardi 12 mai à 22h00"
 
 
 def test_parse_hold_created():
     event = parse_event(_hold_created_payload())
     assert isinstance(event, HoldCreatedEvent)
+    assert event.data.slot_localized.timezone == "Europe/Paris"
 
 
 def test_parse_accepts_bytes():

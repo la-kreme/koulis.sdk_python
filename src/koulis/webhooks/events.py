@@ -12,6 +12,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
+from koulis.models import LocalizedDateTime
+
 
 class _BaseEventData(BaseModel):
     """Base for all event data payloads. Ignores unknown fields
@@ -25,6 +27,18 @@ class ReservationCreatedData(_BaseEventData):
     restaurant_id: UUID
     restaurant_name: str
     slot_at: datetime
+    """
+    UTC datetime — kept for backward-compatibility with SDK v0.1.x consumers.
+    New code should prefer `slot_localized`, which provides timezone-aware
+    rendering for display purposes.
+    """
+    slot_localized: LocalizedDateTime
+    """
+    Slot moment-in-time, localized to the restaurant's timezone. Use
+    `slot_localized.human_readable_fr` (or `_en`) when confirming the
+    booking to the customer — this is what they need to read to know when
+    to show up. Use `slot_localized.iso_utc` for inter-service calls.
+    """
     party_size: int
     customer_name: str
     customer_phone: str
@@ -39,6 +53,9 @@ class HoldCreatedData(_BaseEventData):
     restaurant_id: UUID
     restaurant_name: str
     slot_at: datetime
+    """Backward-compat. Prefer slot_localized."""
+    slot_localized: LocalizedDateTime
+    """Localized to the restaurant's timezone."""
     party_size: int
     expires_at: datetime
     source: str
@@ -49,6 +66,9 @@ class HoldReleasedData(_BaseEventData):
     restaurant_id: UUID
     restaurant_name: str
     slot_at: datetime
+    """Backward-compat. Prefer slot_localized."""
+    slot_localized: LocalizedDateTime
+    """Localized to the restaurant's timezone."""
     party_size: int
     reason: str
     source: str
@@ -59,6 +79,9 @@ class HoldExpiredData(_BaseEventData):
     restaurant_id: UUID
     restaurant_name: str
     slot_at: datetime
+    """Backward-compat. Prefer slot_localized."""
+    slot_localized: LocalizedDateTime
+    """Localized to the restaurant's timezone."""
     party_size: int
     expired_at: datetime
     source: str
@@ -130,9 +153,11 @@ def parse_event(payload: bytes | str | dict[str, Any]) -> WebhookEvent:
         event = parse_event(payload)
         match event:
             case ReservationCreatedEvent():
+                # Display to customer using the localized slot.
+                # event.data.slot_localized.human_readable_fr
                 handle_reservation(event.data)
             case HoldCreatedEvent():
-                # Decrement local inventory for this slot
+                # Decrement local inventory for this slot.
                 handle_hold_created(event.data)
             case HoldReleasedEvent():
                 # No-op (reservation.created arrives right after)

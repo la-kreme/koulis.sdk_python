@@ -90,7 +90,15 @@ def test_hold_happy_path(client):
             "hold_id": "11111111-1111-1111-1111-111111111111",
             "restaurant_id": "22222222-2222-2222-2222-222222222222",
             "restaurant_name": "Sanukiya",
-            "slot_at": "2026-05-12T20:00:00Z",
+            "slot": {
+                "iso_utc": "2026-05-12T20:00:00.000Z",
+                "local_date": "2026-05-12",
+                "local_time": "22:00",
+                "local_datetime": "2026-05-12T22:00:00+02:00",
+                "timezone": "Europe/Paris",
+                "human_readable_fr": "mardi 12 mai à 22h00",
+                "human_readable_en": "Tuesday, May 12 at 10:00 PM",
+            },
             "party_size": 2,
             "expires_at": "2026-05-12T20:05:00Z",
             "expires_in_seconds": 300,
@@ -102,6 +110,12 @@ def test_hold_happy_path(client):
         party_size=2,
     )
     assert hold.party_size == 2
+    # The SDK exposes a structured slot that callers can use for
+    # display (human_readable_fr) without re-implementing timezone
+    # conversion themselves.
+    assert hold.slot.timezone == "Europe/Paris"
+    assert hold.slot.iso_utc == "2026-05-12T20:00:00.000Z"
+    assert hold.slot.human_readable_fr == "mardi 12 mai à 22h00"
 
 
 @respx.mock

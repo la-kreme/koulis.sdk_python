@@ -12,6 +12,7 @@ from koulis.models._generated import (
     HoldResponse,
     ListWebhookDeliveriesResponse,
     ListWebhooksResponse,
+    LocalizedDateTime,
     RegisterWebhookInput,
     RegisterWebhookOutput,
     ReservationResponse,
@@ -41,6 +42,8 @@ __all__ = [
     "Hold",
     "Reservation",
     "SearchResponse",
+    # Localization
+    "LocalizedDateTime",
     # Enums (give consumers autocomplete on valid values)
     "Event",
     "Status",
