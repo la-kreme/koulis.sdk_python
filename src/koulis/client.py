@@ -232,12 +232,13 @@ class KoulisClient:
                 slot_at_iso = to_utc_iso(slot_at)
             else:
                 slot_at_iso = slot_at
-            normalized_slots.append(
-                {
-                    "slot_at": slot_at_iso,
-                    "capacity_total": slot["capacity_total"],
-                }
-            )
+            normalized: dict[str, Any] = {
+                "slot_at": slot_at_iso,
+                "capacity_total": slot["capacity_total"],
+            }
+            if "max_party_size" in slot:
+                normalized["max_party_size"] = slot["max_party_size"]
+            normalized_slots.append(normalized)
 
         payload = {
             "date": date.isoformat(),
