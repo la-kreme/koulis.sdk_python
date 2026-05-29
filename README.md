@@ -163,6 +163,37 @@ See [`examples/`](./examples) for full working code:
 - `onboarding_partner.py` — restaurant onboarding (no extra deps)
 - `webhook_receiver_fastapi.py` — webhook receiver pattern (`pip install fastapi uvicorn`)
 
+## Workspace
+
+This repository is part of the Koulis workspace. See [`ARCHITECTURE.md`](../ARCHITECTURE.md) at the workspace root for a complete map of all repos and their interactions.
+
+### Position in the ecosystem
+
+```
+reservation_service (PMS backend)
+    │
+    │ import koulis
+    │
+    ▼
+koulis.sdk_python (this repo) ──HTTPS──▶ koulis.api (../koulis.api)
+                                               │
+                                               │ webhooks
+                                               ▼
+                                         reservation_service
+```
+
+- **Consumes**: [`koulis.api`](../koulis.api) — the core Koulis API at `api.koulis.ai`
+- **Used by**: [`reservation_service`](../reservation_service) — PMS backend for restaurant onboarding, availability sync, and webhook reception
+- **Related**: [`koulis`](../koulis) — MCP server that also consumes `koulis.api` (but via the MCP protocol, not this SDK)
+
+### Key integrations
+
+The SDK is the bridge between PMS partners and the Koulis protocol. In the `reservation_service`:
+
+- **Onboarding**: `register_restaurant()` registers a restaurant in the Koulis network
+- **Sync**: `push_availabilities()` pushes real-time table availability from the PMS to Koulis (hourly cron + event-driven)
+- **Webhooks**: `verify_signature()` and `parse_event()` validate and dispatch incoming webhooks from `koulis.api`
+
 ## Development
 
 ```bash
